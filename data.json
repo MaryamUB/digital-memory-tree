@@ -8,6 +8,32 @@
         {
           "name": "Kemps auto",
           "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/37"
+        },
+        {
+          "name": "Poems collection",
+          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
+        }
+      ]
+    },
+    {
+      "name": "Charles Eyck",
+      "children": [
+        {
+          "name": "Portrait sketch",
+          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
+        }
+      ]
+    },
+    {
+      "name": "Anna Brouwer",
+      "children": [
+        {
+          "name": "Family letter",
+          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
+        },
+        {
+          "name": "Wedding photo",
+          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
         }
       ]
     }

@@ -1,5 +1,6 @@
 (async function() {
   try {
+    // Load static data instead of API
     const res = await fetch("data.json");
     const rootData = await res.json();
 

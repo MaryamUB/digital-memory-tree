@@ -1,11 +1,10 @@
 (async function() {
   try {
-    // Load static data instead of API
     const res = await fetch("data.json");
     const rootData = await res.json();
 
-    const width = 1000, height = 700;
-    const treeLayout = d3.tree().size([height - 80, width - 160]);
+    const width = 800, height = 600;
+    const treeLayout = d3.tree().size([width - 100, height - 200]);
     const root = d3.hierarchy(rootData);
     treeLayout(root);
 
@@ -14,35 +13,44 @@
       .attr("width", width)
       .attr("height", height)
       .append("g")
-      .attr("transform", "translate(80,40)");
+      .attr("transform", "translate(60,60)");
 
+    // Draw links
     svg.selectAll(".link")
       .data(root.links())
-      .enter().append("path")
+      .enter()
+      .append("path")
       .attr("fill", "none")
-      .attr("stroke", "#aaa")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.linkHorizontal()
-        .x(d => d.y)
-        .y(d => d.x));
+      .attr("stroke", "#8a8a8a")
+      .attr("stroke-width", 2)
+      .attr("d", d3.linkVertical()
+        .x(d => d.x)
+        .y(d => d.y));
 
+    // Draw nodes
     const node = svg.selectAll(".node")
       .data(root.descendants())
-      .enter().append("g")
+      .enter()
+      .append("g")
       .attr("class", "node")
-      .attr("transform", d => `translate(${d.y},${d.x})`);
+      .attr("transform", d => `translate(${d.x},${d.y})`);
 
-    node.append("circle").attr("r", 6).attr("fill", "#4caf50");
+    node.append("circle")
+      .attr("r", 8)
+      .attr("fill", d => d.children ? "#4caf50" : "#2196f3");
 
     node.append("text")
-      .attr("dy", 3)
-      .attr("x", d => d.children ? -10 : 10)
-      .style("text-anchor", d => d.children ? "end" : "start")
+      .attr("dy", -12)
+      .attr("text-anchor", "middle")
+      .style("font-family", "sans-serif")
+      .style("font-size", "14px")
+      .style("cursor", d => d.data.url ? "pointer" : "default")
+      .style("fill", "#333")
       .text(d => d.data.name)
-      .style("cursor", "pointer")
       .on("click", (e, d) => {
         if (d.data.url) window.open(d.data.url, "_blank");
       });
+
   } catch (err) {
     console.error("Error loading data:", err);
   }

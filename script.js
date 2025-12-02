@@ -1,19 +1,19 @@
 (async function() {
+  // Use your exact API root and item set ID
   const apiRoot = "https://digitalcollections.library.maastrichtuniversity.nl/api";
-  const itemSetLabel = "Maastricht History Clinic";
+  const itemSetId = 123; // <-- REPLACE with your real item set ID
 
-  const setRes = await fetch(`${apiRoot}/item_sets?search=${encodeURIComponent(itemSetLabel)}`);
-  const setData = await setRes.json();
-  const setId = setData[0]["o:id"];
-
-  const peopleRes = await fetch(`${apiRoot}/item_sets/${setId}/items`);
+  // Step 1: Get all people in that item set
+  const peopleRes = await fetch(`${apiRoot}/item_sets/${itemSetId}/items`);
   const people = await peopleRes.json();
 
+  // Step 2: Build tree data
   const rootData = { name: "Maastricht History Clinic", children: [] };
 
   for (const person of people) {
-    const personNode = { name: person["o:title"], children: [] };
+    const personNode = { name: person["o:title"] || "Unnamed", children: [] };
 
+    // Step 3: Find all objects linked via schema:about
     const relatedUrl =
       `${apiRoot}/items?property[0][joiner]=and&property[0][property]=schema:about` +
       `&property[0][type]=resource&property[0][text]=${encodeURIComponent(person["@id"])}`;
@@ -30,6 +30,7 @@
     rootData.children.push(personNode);
   }
 
+  // Step 4: Draw D3 tree
   const width = 1000, height = 700;
   const treeLayout = d3.tree().size([height - 80, width - 160]);
   const root = d3.hierarchy(rootData);
@@ -45,7 +46,9 @@
   svg.selectAll(".link")
     .data(root.links())
     .enter().append("path")
-    .attr("class", "link")
+    .attr("fill", "none")
+    .attr("stroke", "#aaa")
+    .attr("stroke-width", 1.5)
     .attr("d", d3.linkHorizontal()
       .x(d => d.y)
       .y(d => d.x));
@@ -56,7 +59,7 @@
     .attr("class", "node")
     .attr("transform", d => `translate(${d.y},${d.x})`);
 
-  node.append("circle").attr("r", 6);
+  node.append("circle").attr("r", 6).attr("fill", "#4caf50");
 
   node.append("text")
     .attr("dy", 3)

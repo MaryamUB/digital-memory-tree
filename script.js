@@ -3,11 +3,11 @@ const OMEKA_BASE_URL = "https://digitalcollections-accept.library.maastrichtuniv
 const OMEKA_API_URL = OMEKA_BASE_URL + "/api/items";
 const PERSON_CLASS_ID = '473'; 
 const ITEM_SET_ID = '60514'; 
-const LINKING_PROPERTY_ID = '120'; // Property ID for schema:about (commonly 120 in Omeka-S)
+const LINKING_PROPERTY_ID = '44'; // Property ID for schema:about (commonly 44 in Omeka-S)
 
 /**
  * 1. Fetches 'Person' items (Class 473) that belong ONLY to Item Set 60514.
- * 2. For each Person, it fetches their linked 'Object' items (via schema:about/ID 120).
+ * 2. For each Person, it fetches their linked 'Object' items (via schema:about/ID 44).
  * 3. Transforms the data into the nested JSON structure D3.js requires.
  */
 async function fetchOmekaData() {

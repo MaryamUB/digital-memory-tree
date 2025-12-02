@@ -1,7 +1,7 @@
 (async function() {
   // Use your exact API root and item set ID
   const apiRoot = "https://digitalcollections.library.maastrichtuniversity.nl/api";
-  const itemSetId = 123; // <-- REPLACE with your real item set ID
+  const itemSetId = 60514; // <-- REPLACE with your real item set ID
 
   // Step 1: Get all people in that item set
   const peopleRes = await fetch(`${apiRoot}/item_sets/${itemSetId}/items`);

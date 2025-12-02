@@ -1,36 +1,8 @@
 (async function() {
-  // Use the ACCEPT environment
-  const apiRoot = "https://digitalcollections-accept.library.maastrichtuniversity.nl/api";
-  const itemSetId = 60514; // Maastricht History Clinic (accept)
-
   try {
-    // Step 1: Get all people in that item set
-    const peopleRes = await fetch(`${apiRoot}/item_sets/${itemSetId}/items`);
-    const people = await peopleRes.json();
+    const res = await fetch("data.json");
+    const rootData = await res.json();
 
-    const rootData = { name: "Maastricht History Clinic", children: [] };
-
-    // Step 2: For each person, find linked objects
-    for (const person of people) {
-      const personNode = { name: person["o:title"] || "Unnamed", children: [] };
-
-      const relatedUrl =
-        `${apiRoot}/items?property[0][joiner]=and&property[0][property]=schema:about` +
-        `&property[0][type]=resource&property[0][text]=${encodeURIComponent(person["@id"])}`;
-      const relatedRes = await fetch(relatedUrl);
-      const relatedObjects = await relatedRes.json();
-
-      for (const obj of relatedObjects) {
-        personNode.children.push({
-          name: obj["o:title"] || "Memory Object",
-          url: obj["@id"].replace("/api", "")
-        });
-      }
-
-      rootData.children.push(personNode);
-    }
-
-    // Step 3: Draw the D3 tree
     const width = 1000, height = 700;
     const treeLayout = d3.tree().size([height - 80, width - 160]);
     const root = d3.hierarchy(rootData);
@@ -70,9 +42,7 @@
       .on("click", (e, d) => {
         if (d.data.url) window.open(d.data.url, "_blank");
       });
-
   } catch (err) {
     console.error("Error loading data:", err);
   }
 })();
-

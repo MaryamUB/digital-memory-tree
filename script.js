@@ -2,18 +2,24 @@
 const OMEKA_BASE_URL = "https://digitalcollections-accept.library.maastrichtuniversity.nl";
 const OMEKA_API_URL = OMEKA_BASE_URL + "/api/items";
 const PERSON_CLASS_ID = '473'; 
-// *** CONFIRMED ID for schema:about is commonly 120 in standard Omeka-S setups ***
-const LINKING_PROPERTY_ID = '120'; 
+const ITEM_SET_ID = '60514'; 
+const LINKING_PROPERTY_ID = '120'; // Property ID for schema:about (commonly 120 in Omeka-S)
 
 /**
- * Fetches all 'Person' items and their linked 'Object' items (via schema:about).
- * Transforms the API data into the nested JSON structure D3.js requires.
+ * 1. Fetches 'Person' items (Class 473) that belong ONLY to Item Set 60514.
+ * 2. For each Person, it fetches their linked 'Object' items (via schema:about/ID 120).
+ * 3. Transforms the data into the nested JSON structure D3.js requires.
  */
 async function fetchOmekaData() {
     try {
-        // 1. Fetch all people items (Resource Class ID 473)
-        const peopleResponse = await fetch(`${OMEKA_API_URL}?resource_class_id=${PERSON_CLASS_ID}&limit=100`);
-        if (!peopleResponse.ok) throw new Error("Failed to fetch People from Omeka API.");
+        // 1. Fetch all people items, FILTERING BY ITEM SET ID
+        const peopleUrl = `${OMEKA_API_URL}?resource_class_id=${PERSON_CLASS_ID}&item_set_id=${ITEM_SET_ID}&limit=100`;
+        
+        const peopleResponse = await fetch(peopleUrl);
+        if (!peopleResponse.ok) {
+            console.error("Omeka API Status:", peopleResponse.status);
+            throw new Error(`Failed to fetch People from Omeka API. Status: ${peopleResponse.status}`);
+        }
         const people = await peopleResponse.json();
 
         const rootNode = {
@@ -24,15 +30,19 @@ async function fetchOmekaData() {
         // Process each person
         for (const person of people) {
             const personNode = {
-                name: person['o:title'],
+                // Use Omeka's title and URL fields
+                name: person['o:title'], 
                 url: person['o:url'],
                 children: []
             };
             
-            // 2. Fetch objects linked to this person (where schema:about/ID 120 points to the person's ID)
+            // 2. Fetch objects linked to this person 
             const objectsUrl = `${OMEKA_API_URL}?property[0][joiner]=and&property[0][property_id]=${LINKING_PROPERTY_ID}&property[0][type]=res&property[0][value]=${person['o:id']}&limit=100`;
             const objectsResponse = await fetch(objectsUrl);
-            if (!objectsResponse.ok) continue; // Skip if objects fail to fetch
+            if (!objectsResponse.ok) {
+                console.warn(`Could not fetch objects for person ID ${person['o:id']}.`);
+                continue; 
+            }
             const objects = await objectsResponse.json();
 
             // Add each linked object as a child (leaf)
@@ -51,14 +61,9 @@ async function fetchOmekaData() {
         
         return rootNode;
     } catch (e) {
-        console.error("Error during Omeka Data Fetching:", e);
-        // Fallback: If API fails, return the static data structure you provided previously
-        return {
-            "name": "Maastricht History Clinic",
-            "children": [
-                // Fallback People/Objects go here if you wish, otherwise it will just show root
-            ]
-        };
+        console.error("FATAL ERROR during Omeka Data Fetching:", e);
+        // Fallback: This will prevent the D3.js section from crashing
+        return { name: "Maastricht History Clinic (Loading Error)", children: [] };
     }
 }
 
@@ -71,18 +76,20 @@ async function fetchOmekaData() {
     const width = 800, height = 800;
     const radius = width / 2;
 
-    // --- D3.js Setup ---
+    // Build radial layout
     const treeLayout = d3.tree()
       .size([2 * Math.PI, radius - 150]); 
 
     const root = d3.hierarchy(rootData);
     treeLayout(root);
 
+    // Convert polar coordinates to cartesian
     const radialPoint = (x, y) => [
       Math.cos(x - Math.PI / 2) * y,
       Math.sin(x - Math.PI / 2) * y
     ];
 
+    // Append to the element with id="memoryTree"
     const svg = d3.select("#memoryTree")
       .append("svg")
       .attr("width", width)
@@ -116,7 +123,7 @@ async function fetchOmekaData() {
     node.append("circle")
       .attr("r", d => d.depth === 0 ? 10 : 7) 
       .attr("fill", d => {
-        // d.depth === 0 is the main root -> Brown/Trunk
+        // d.depth === 0 is the main root ("Maastricht History Clinic") -> Brown/Trunk
         if (d.depth === 0) return "#A0522D"; 
         // d.children is true for people nodes (Branches) -> Brown
         if (d.children) return "#A0522D"; 
@@ -139,6 +146,6 @@ async function fetchOmekaData() {
       });
 
   } catch (err) {
-    console.error("Error loading data:", err);
+    console.error("Final Error in D3 Rendering:", err);
   }
 })();

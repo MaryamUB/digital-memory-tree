@@ -3,11 +3,13 @@ const OMEKA_BASE_URL = "https://digitalcollections-accept.library.maastrichtuniv
 const OMEKA_API_URL = OMEKA_BASE_URL + "/api/items";
 const PERSON_CLASS_ID = '473'; 
 const ITEM_SET_ID = '60514'; 
-const LINKING_PROPERTY_ID = '44'; // Property ID for schema:about (commonly 44 in Omeka-S)
+// *** VERIFIED FINAL ID FOR schema:about ***
+const LINKING_PROPERTY_ID = '1597'; 
+// *****************************************
 
 /**
  * 1. Fetches 'Person' items (Class 473) that belong ONLY to Item Set 60514.
- * 2. For each Person, it fetches their linked 'Object' items (via schema:about/ID 44).
+ * 2. For each Person, it fetches their linked 'Object' items (via schema:about/ID 1597).
  * 3. Transforms the data into the nested JSON structure D3.js requires.
  */
 async function fetchOmekaData() {
@@ -37,6 +39,7 @@ async function fetchOmekaData() {
             };
             
             // 2. Fetch objects linked to this person 
+            // Query: property[0][property_id]=1597&property[0][type]=res&property[0][value]=person['o:id']
             const objectsUrl = `${OMEKA_API_URL}?property[0][joiner]=and&property[0][property_id]=${LINKING_PROPERTY_ID}&property[0][type]=res&property[0][value]=${person['o:id']}&limit=100`;
             const objectsResponse = await fetch(objectsUrl);
             if (!objectsResponse.ok) {
@@ -62,12 +65,12 @@ async function fetchOmekaData() {
         return rootNode;
     } catch (e) {
         console.error("FATAL ERROR during Omeka Data Fetching:", e);
-        // Fallback: This will prevent the D3.js section from crashing
+        // Fallback
         return { name: "Maastricht History Clinic (Loading Error)", children: [] };
     }
 }
 
-// --- D3.JS RENDERING LOGIC ---
+// --- D3.JS RENDERING LOGIC (The visualization code remains the same) ---
 (async function() {
   try {
     // Get data dynamically from Omeka-S API

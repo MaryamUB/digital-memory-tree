@@ -1,41 +1,36 @@
 {
-  "name": "Maastricht History Clinic",
+  "name": "Digital Memory Tree",
   "children": [
     {
       "name": "Pierre Kemp",
       "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60513",
       "children": [
         {
-          "name": "Kemps auto",
+          "name": "Related item to Pierre Kemp",
           "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/37"
-        },
+        }
+      ]
+    },
+    {
+      "name": "Person No.1",
+      "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60515",
+      "children": [
         {
-          "name": "Poems collection",
-          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
+          "name": "Letter to Person No.1",
+          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60517"
         }
       ]
     },
     {
       "name": "Charles Eyck",
-      "children": [
-        {
-          "name": "Portrait sketch",
-          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
-        }
-      ]
+      "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60512",
+      "children": []
     },
     {
-      "name": "Anna Brouwer",
-      "children": [
-        {
-          "name": "Family letter",
-          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
-        },
-        {
-          "name": "Wedding photo",
-          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl"
-        }
-      ]
+      "name": "Person number 2",
+      "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60516",
+      "children": []
     }
+    // You can add more static people and items here later if needed!
   ]
 }

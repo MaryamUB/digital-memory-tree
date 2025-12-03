@@ -1,80 +1,27 @@
-// --- CONFIGURATION ---
-const OMEKA_BASE_URL = "https://digitalcollections-accept.library.maastrichtuniversity.nl";
-const OMEKA_API_URL = OMEKA_BASE_URL + "/api/items";
-const PERSON_CLASS_ID = '473'; 
-const ITEM_SET_ID = '60514'; 
-// *** VERIFIED FINAL ID FOR schema:about ***
-const LINKING_PROPERTY_ID = '1597'; 
-// *****************************************
+// This script loads a static JSON file for the tree data, bypassing API issues.
 
 /**
- * 1. Fetches 'Person' items (Class 473) that belong ONLY to Item Set 60514.
- * 2. For each Person, it fetches their linked 'Object' items (via schema:about/ID 1597).
- * 3. Transforms the data into the nested JSON structure D3.js requires.
+ * Loads the static data structure from the local data.json file.
  */
-async function fetchOmekaData() {
+async function loadStaticData() {
     try {
-        // 1. Fetch all people items, FILTERING BY ITEM SET ID
-        const peopleUrl = `${OMEKA_API_URL}?resource_class_id=${PERSON_CLASS_ID}&item_set_id=${ITEM_SET_ID}&limit=100`;
-        
-        const peopleResponse = await fetch(peopleUrl);
-        if (!peopleResponse.ok) {
-            console.error("Omeka API Status:", peopleResponse.status);
-            throw new Error(`Failed to fetch People from Omeka API. Status: ${peopleResponse.status}`);
+        const response = await fetch('./data.json');
+        if (!response.ok) {
+            throw new Error(`Failed to load data.json. Status: ${response.status}`);
         }
-        const people = await peopleResponse.json();
-
-        const rootNode = {
-            name: "Maastricht History Clinic",
-            children: []
-        };
-
-        // Process each person
-        for (const person of people) {
-            const personNode = {
-                // Use Omeka's title and URL fields
-                name: person['o:title'], 
-                url: person['o:url'],
-                children: []
-            };
-            
-            // 2. Fetch objects linked to this person 
-            // Query: property[0][property_id]=1597&property[0][type]=res&property[0][value]=person['o:id']
-            const objectsUrl = `${OMEKA_API_URL}?property[0][joiner]=and&property[0][property_id]=${LINKING_PROPERTY_ID}&property[0][type]=res&property[0][value]=${person['o:id']}&limit=100`;
-            const objectsResponse = await fetch(objectsUrl);
-            if (!objectsResponse.ok) {
-                console.warn(`Could not fetch objects for person ID ${person['o:id']}.`);
-                continue; 
-            }
-            const objects = await objectsResponse.json();
-
-            // Add each linked object as a child (leaf)
-            for (const object of objects) {
-                personNode.children.push({
-                    name: object['o:title'],
-                    url: object['o:url']
-                });
-            }
-            
-            // Only include the person node if they have associated objects (leaves)
-            if (personNode.children.length > 0) {
-                rootNode.children.push(personNode);
-            }
-        }
-        
-        return rootNode;
+        return await response.json();
     } catch (e) {
-        console.error("FATAL ERROR during Omeka Data Fetching:", e);
-        // Fallback
-        return { name: "Maastricht History Clinic (Loading Error)", children: [] };
+        console.error("Error loading static data:", e);
+        // Fallback structure if the JSON file fails to load
+        return { name: "Error Loading Data", children: [] };
     }
 }
 
-// --- D3.JS RENDERING LOGIC (The visualization code remains the same) ---
+// --- D3.JS RENDERING LOGIC ---
 (async function() {
   try {
-    // Get data dynamically from Omeka-S API
-    const rootData = await fetchOmekaData(); 
+    // Get data statically from the local file
+    const rootData = await loadStaticData(); 
 
     const width = 800, height = 800;
     const radius = width / 2;
@@ -126,7 +73,7 @@ async function fetchOmekaData() {
     node.append("circle")
       .attr("r", d => d.depth === 0 ? 10 : 7) 
       .attr("fill", d => {
-        // d.depth === 0 is the main root ("Maastricht History Clinic") -> Brown/Trunk
+        // d.depth === 0 is the main root ("Digital Memory Tree") -> Brown/Trunk
         if (d.depth === 0) return "#A0522D"; 
         // d.children is true for people nodes (Branches) -> Brown
         if (d.children) return "#A0522D"; 

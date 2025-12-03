@@ -6,18 +6,8 @@
       "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60513",
       "children": [
         {
-          "name": "Related item to Pierre Kemp",
+          "name": "Kemps auto",
           "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/37"
-        }
-      ]
-    },
-    {
-      "name": "Person No.1",
-      "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60515",
-      "children": [
-        {
-          "name": "Letter to Person No.1",
-          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60517"
         }
       ]
     },
@@ -27,10 +17,19 @@
       "children": []
     },
     {
-      "name": "Person number 2",
+      "name": "Person No. 1",
+      "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60515",
+      "children": [
+        {
+          "name": "Letter to Person No. 1",
+          "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60517"
+        }
+      ]
+    },
+    {
+      "name": "Person No. 2",
       "url": "https://digitalcollections-accept.library.maastrichtuniversity.nl/s/index/item/60516",
       "children": []
     }
-    // You can add more static people and items here later if needed!
   ]
 }
